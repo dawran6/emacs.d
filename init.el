@@ -73,6 +73,18 @@
 
 (use-package rainbow-mode)
 
+(use-package fill-column-indicator
+  :commands (global-fci-mode)
+  :init
+  (setq-default fci-rule-column 80)
+  :config
+  (define-globalized-minor-mode global-fci-mode fci-mode
+    (lambda ()
+      (if buffer-file-name (fci-mode 1)))))
+
+(global-fci-mode)
+
+
 ;; =============
 ;; Sane defaults
 
@@ -151,32 +163,6 @@
 
 (defvar my/clojure-map (make-sparse-keymap)
   "Keymap for \"leader key\" shortcuts in Clojure mode.")
-
-;; ========
-;; Evil
-
-(use-package evil
-  :config
-  (evil-mode t)
-  (setq evil-move-beyond-eol t)
-  (setq evil-move-cursor-back nil))
-
-(define-key evil-normal-state-map (kbd "SPC") my/space-map)
-(define-key my/space-map (kbd "b C-d") 'my/kill-other-buffers)
-(define-key my/space-map (kbd "b C-d") 'my/kill-other-buffers)
-(define-key my/space-map (kbd "TAB") 'mode-line-other-buffer)
-(define-key my/space-map (kbd "qq") 'save-buffers-kill-emacs)
-
-(use-package fill-column-indicator
-  :commands (global-fci-mode)
-  :init
-  (setq-default fci-rule-column 80)
-  :config
-  (define-globalized-minor-mode global-fci-mode fci-mode
-    (lambda ()
-      (if buffer-file-name (fci-mode 1)))))
-
-(global-fci-mode)
 
 ;; ========
 ;; Navigation and editing
@@ -303,9 +289,6 @@
   (global-set-key (kbd "s-g l") 'magit-log-all)
   (setq magit-display-buffer-function 'magit-display-buffer-fullframe-status-v1))
 
-(use-package evil-magit
-  :hook (magit-mode . evil-magit-init))
-
 ;; ========
 ;; Spell checking
 
@@ -414,23 +397,10 @@
   (setq clojure-align-forms-automatically t)
   (require 'flycheck-clj-kondo))
 
-(evil-define-key 'normal clojure-mode-map
-  (kbd "s-,") my/clojure-map)
-
 (use-package lispy
   :hook ((emacs-lisp-mode . lispy-mode)
          (clojure-mode . lispy-mode)
          (clojurescript-mode . lispy-mode)))
-
-(use-package lispyville
-  :hook (lispy-mode . lispyville-mode)
-  :config
-  (lispyville-set-key-theme '(operators
-                              c-w
-                              additional
-                              additional-movement
-                              slurp/barf-cp
-                              prettify)))
 
 (use-package clj-refactor
   :hook (clojure-mode . clj-refactor-mode))
@@ -440,26 +410,6 @@
   (setq cider-repl-display-in-current-window t)
   (setq cider-repl-pop-to-buffer-on-connect nil)
   (setq cider-repl-use-pretty-printing t)
-  (define-key my/clojure-map "'" 'sesman-start)
-  (define-key my/clojure-map "eb" 'cider-eval-buffer)
-  (define-key my/clojure-map "ee" 'cider-eval-last-sexp)
-  (define-key my/clojure-map "ef" 'cider-eval-defun-at-point)
-  (define-key my/clojure-map "==" 'cider-format-buffer)
-  (define-key my/clojure-map "=f" 'cider-format-defun)
-  (define-key my/clojure-map "=r" 'cider-format-region)
-  (define-key my/clojure-map "ha" 'cider-apropos)
-  (define-key my/clojure-map "hc" 'cider-cheatsheet)
-  (define-key my/clojure-map "hh" 'cider-doc)
-  (define-key my/clojure-map "hn" 'cider-browse-ns)
-  (define-key my/clojure-map "hN" 'cider-browse-ns-all)
-  (define-key my/clojure-map "hs" 'cider-browse-spec)
-  (define-key my/clojure-map "hS" 'cider-browse-spec-all)
-  (define-key my/clojure-map "gb" 'cider-pop-back)
-  (define-key my/clojure-map "gg" 'my/clj-find-var)
-  (define-key my/clojure-map "gn" 'cider-find-ns)
-  (define-key my/clojure-map "gr" 'cider-find-resource)
-  (define-key my/clojure-map "mq" 'sesman-quit)
-  (define-key my/clojure-map "mr" 'sesman-restart)
   )
 
 (use-package web-mode
@@ -485,10 +435,6 @@
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode)))
-
-;; Lisp
-(load (expand-file-name "~/.quicklisp/slime-helper.el"))
-(setq inferior-lisp-program "sbcl")
 
 ;; functions
 
